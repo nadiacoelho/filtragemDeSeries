@@ -10,7 +10,6 @@ def mediaPatamar(pesado, medio, leve):
     percentualPesado = 0.10
     percentualMedio = 0.52
     percentualLeve = 0.38
-
     media = pesado*percentualPesado + medio*percentualMedio + leve*percentualLeve
     return (media)
 
