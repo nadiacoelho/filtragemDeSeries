@@ -1,6 +1,10 @@
 import pandas as pd
 pd.set_option('display.width', 400)
 
+#LIMITES DE PREÇO:
+piso = 40.16
+teto = 505.18
+
 tabela1 = pd.read_fwf('cmarg001.out',delim_whitespace=1, skiprows= 2)
 tabela1_2018 = tabela1.iloc[:6002,:]
 tabela2 = pd.read_fwf('cmarg002.out',delim_whitespace=1, skiprows= 2)
@@ -56,6 +60,10 @@ for mes in range (1,14):
     while i < len(tabela1_2018):
         precoMed = mediaPatamar(float(tabela1_2018.iloc[i, mes]),float(tabela1_2018.iloc[i+1, mes]),float(tabela1_2018.iloc[i+2, mes]))
         i+=3
+        if precoMed < piso:
+            precoMed = piso
+        if precoMed > teto:
+            precoMed = teto
         precoMes.append(precoMed)
     label = defineMes(mes)
     dfCMO1[label] = precoMes
@@ -66,6 +74,11 @@ for mes in range (1,14):
     while i < len(tabela2_2018):
         precoMed = mediaPatamar(float(tabela2_2018.iloc[i, mes]), float(tabela2_2018.iloc[i + 1, mes]), float(tabela2_2018.iloc[i + 2, mes]))
         i += 3
+        if precoMed < piso:
+            precoMed = piso
+        if precoMed > teto:
+            precoMed = teto
+        precoMes.append(precoMed)
         precoMes.append(precoMed)
     label = defineMes(mes)
     dfCMO2[label] = precoMes
@@ -76,6 +89,11 @@ for mes in range (1,14):
     while i < len(tabela3_2018):
         precoMed = mediaPatamar(float(tabela3_2018.iloc[i, mes]),float(tabela3_2018.iloc[i+1, mes]),float(tabela3_2018.iloc[i+2, mes]))
         i+=3
+        if precoMed < piso:
+            precoMed = piso
+        if precoMed > teto:
+            precoMed = teto
+        precoMes.append(precoMed)
         precoMes.append(precoMed)
     label = defineMes(mes)
     dfCMO3[label] = precoMes
@@ -86,6 +104,11 @@ for mes in range (1,14):
     while i < len(tabela4_2018):
         precoMed = mediaPatamar(float(tabela4_2018.iloc[i, mes]),float(tabela4_2018.iloc[i+1, mes]),float(tabela4_2018.iloc[i+2, mes]))
         i+=3
+        if precoMed < piso:
+            precoMed = piso
+        if precoMed > teto:
+            precoMed = teto
+        precoMes.append(precoMed)
         precoMes.append(precoMed)
     label = defineMes(mes)
     dfCMO4[label] = precoMes
