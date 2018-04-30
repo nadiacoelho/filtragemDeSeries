@@ -52,7 +52,6 @@ def defineMes(mes):
         return "DEZ"
     if mes == 13:
         return "MEDIA"
-
 for mes in range (1,14):
     #1 - SUDESTE
     precoMes = []
@@ -114,3 +113,4 @@ for mes in range (1,14):
     dfCMO4[label] = precoMes
 
 print(dfCMO1)
+print(dfCMO1.columns)
