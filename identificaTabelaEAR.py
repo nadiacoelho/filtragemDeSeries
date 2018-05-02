@@ -2,13 +2,13 @@ import pandas as pd
 pd.set_option('display.width', 400)
 
 #importação do arquivo considerando o ano 2018(o ano vigente), que no arquivo vai até a linha 2000 (2000 series)
-tabela1 = pd.read_fwf('earmfpm001.out',delim_whitespace=1, skiprows= 2)
+tabela1 = pd.read_fwf('earmfpm001.out',delim_whitespace=1, skiprows= 4)
 tabela1_2018 = tabela1.iloc[:2000,:]
-tabela2 = pd.read_fwf('earmfpm002.out',delim_whitespace=1, skiprows= 2)
+tabela2 = pd.read_fwf('earmfpm002.out',delim_whitespace=1, skiprows= 4)
 tabela2_2018 = tabela2.iloc[:2000,:]
-tabela3 = pd.read_fwf('earmfpm003.out',delim_whitespace=1, skiprows= 2)
+tabela3 = pd.read_fwf('earmfpm003.out',delim_whitespace=1, skiprows= 4)
 tabela3_2018 = tabela3.iloc[:2000,:]
-tabela4 = pd.read_fwf('earmfpm004.out',delim_whitespace=1, skiprows= 2)
+tabela4 = pd.read_fwf('earmfpm004.out',delim_whitespace=1, skiprows= 4)
 tabela4_2018 = tabela4.iloc[:2000,:]
 
 #ajuste dos dataframes:

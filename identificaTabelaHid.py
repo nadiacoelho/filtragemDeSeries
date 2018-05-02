@@ -84,5 +84,3 @@ for mes in range (1,14):
         listaAux.append(valor)
     label = defineMes(mes)
     dfHid4[label] = listaAux
-
-print(dfHid1)

@@ -111,6 +111,3 @@ for mes in range (1,14):
         precoMes.append(precoMed)
     label = defineMes(mes)
     dfCMO4[label] = precoMes
-
-print(dfCMO1)
-print(dfCMO1.columns)
