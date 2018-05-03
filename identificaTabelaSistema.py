@@ -71,7 +71,7 @@ ultimo = cargas1.size - 1
 mes = 12 #comeca em DEZ
 while ultimo >=2 :
     m = defineMes(mes)
-    dfSistema.loc[m, ('1', 'carga')] = cargas1.iloc[ultimo]
+    dfSistema.loc[m, ('1', 'carga')] = float(cargas1.iloc[ultimo])
     mes-=1
     ultimo-=1
 
@@ -81,7 +81,7 @@ ultimo = cargas2.size - 1
 mes = 12 #comeca em DEZ
 while ultimo >=2 :
     m = defineMes(mes)
-    dfSistema.loc[m, ('2', 'carga')] = cargas2.iloc[ultimo]
+    dfSistema.loc[m, ('2', 'carga')] = float(cargas2.iloc[ultimo])
     mes-=1
     ultimo-=1
 
@@ -91,7 +91,7 @@ ultimo = cargas1.size - 1
 mes = 12 #comeca em DEZ
 while ultimo >=2 :
     m = defineMes(mes)
-    dfSistema.loc[m, ('3', 'carga')] = cargas3.iloc[ultimo]
+    dfSistema.loc[m, ('3', 'carga')] = float(cargas3.iloc[ultimo])
     mes-=1
     ultimo-=1
 
@@ -101,6 +101,8 @@ ultimo = cargas1.size - 1
 mes = 12 #comeca em DEZ
 while ultimo >=2 :
     m = defineMes(mes)
-    dfSistema.loc[m, ('4', 'carga')] = cargas4.iloc[ultimo]
+    dfSistema.loc[m, ('4', 'carga')] = float(cargas4.iloc[ultimo])
     mes-=1
     ultimo-=1
+
+#print(dfSistema)
