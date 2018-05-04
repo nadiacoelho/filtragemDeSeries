@@ -1,4 +1,5 @@
 import pandas as pd
+import identificaTabelaEAR
 pd.set_option('display.width', 400)
 
 #LIMITES DE PREÇO:
@@ -108,5 +109,3 @@ for mes in range (1,14):
         precoMes.append(precoMed)
     label = defineMes(mes)
     dfCMO4[label] = precoMes
-
-print(dfCMO4)
