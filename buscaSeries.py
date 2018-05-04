@@ -6,7 +6,7 @@ def is_equal(a, b):
     return abs(a - b) < eps
 
 
-geracao = montaTabelaTotal.dfTotal1
-variavel = 'CMO'
-
-print(geracao[variavel])
+dfSudeste = montaTabelaTotal.dfTotal1
+dfSul = montaTabelaTotal.dfTotal2
+dfNordeste = montaTabelaTotal.dfTotal3
+dfNorte = montaTabelaTotal.dfTotal4

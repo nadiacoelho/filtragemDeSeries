@@ -78,7 +78,6 @@ for mes in range (1,14):
         if precoMed > teto:
             precoMed = teto
         precoMes.append(precoMed)
-        precoMes.append(precoMed)
     label = defineMes(mes)
     dfCMO2[label] = precoMes
 
@@ -92,7 +91,6 @@ for mes in range (1,14):
             precoMed = piso
         if precoMed > teto:
             precoMed = teto
-        precoMes.append(precoMed)
         precoMes.append(precoMed)
     label = defineMes(mes)
     dfCMO3[label] = precoMes
@@ -108,6 +106,7 @@ for mes in range (1,14):
         if precoMed > teto:
             precoMed = teto
         precoMes.append(precoMed)
-        precoMes.append(precoMed)
     label = defineMes(mes)
     dfCMO4[label] = precoMes
+
+print(dfCMO4)
