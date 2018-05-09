@@ -30,7 +30,6 @@ pequenas4 = pequenas4.rename("peqNorte")
 pequenas4.pop("ANO")
 dfSistema.loc[:, ('4','pequenas')] = pequenas4
 
-
 #Lê cargas:
 #porque a leitura da tabela de cargas não é formatada (como a de geração não despachada), tive que adotar a solução:
 #limpei a tabela para conter apenas os dados relativos a 2018 (ano vigente)
@@ -70,8 +69,7 @@ cargas1 = cargas1.rename("cargaSudeste")
 ultimo = cargas1.size - 1
 mes = 12 #comeca em DEZ
 while ultimo >=2 :
-    m = defineMes(mes)
-    dfSistema.loc[m, ('1', 'carga')] = float(cargas1.iloc[ultimo])
+    dfSistema.loc[defineMes(mes), ('1', 'carga')] = float(cargas1.iloc[ultimo])
     mes-=1
     ultimo-=1
 
@@ -80,8 +78,7 @@ cargas2 = cargas2.rename("cargaSul")
 ultimo = cargas2.size - 1
 mes = 12 #comeca em DEZ
 while ultimo >=2 :
-    m = defineMes(mes)
-    dfSistema.loc[m, ('2', 'carga')] = float(cargas2.iloc[ultimo])
+    dfSistema.loc[defineMes(mes), ('2', 'carga')] = float(cargas2.iloc[ultimo])
     mes-=1
     ultimo-=1
 
@@ -90,8 +87,7 @@ cargas3 = cargas3.rename("cargaNordeste")
 ultimo = cargas1.size - 1
 mes = 12 #comeca em DEZ
 while ultimo >=2 :
-    m = defineMes(mes)
-    dfSistema.loc[m, ('3', 'carga')] = float(cargas3.iloc[ultimo])
+    dfSistema.loc[defineMes(mes), ('3', 'carga')] = float(cargas3.iloc[ultimo])
     mes-=1
     ultimo-=1
 
@@ -100,9 +96,14 @@ cargas4 = cargas4.rename("cargaNorte")
 ultimo = cargas1.size - 1
 mes = 12 #comeca em DEZ
 while ultimo >=2 :
-    m = defineMes(mes)
-    dfSistema.loc[m, ('4', 'carga')] = float(cargas4.iloc[ultimo])
+    dfSistema.loc[defineMes(mes), ('4', 'carga')] = float(cargas4.iloc[ultimo])
     mes-=1
     ultimo-=1
 
-#print(dfSistema)
+while mes > 0:
+    dfSistema.loc[defineMes(mes), ('1', 'pequenas')] = 0
+    dfSistema.loc[defineMes(mes), ('2', 'pequenas')] = 0
+    dfSistema.loc[defineMes(mes), ('3', 'pequenas')] = 0
+    dfSistema.loc[defineMes(mes), ('4', 'pequenas')] = 0
+    mes-=1
+print(dfSistema)

@@ -3,12 +3,11 @@ import matplotlib.pyplot as plt
 writer = pd.ExcelWriter('AnaliseNewave.xlsx', engine= 'openpyxl')
 pd.set_option('display.width', 500)
 
-
 #Os dataframes que serão usados no código inteiro. Se definidos como variável global do projeto, essas linhas podem ser suprimidas.
-dfSudeste = pd.read_csv('Tabela1').set_index(['serie', 'mes'])
-dfSul = pd.read_csv('Tabela2').set_index(['serie', 'mes'])
-dfNordeste = pd.read_csv('Tabela3').set_index(['serie', 'mes'])
-dfNorte = pd.read_csv('Tabela4').set_index(['serie', 'mes'])
+dfSudeste = pd.read_csv('Tabela1').set_index(['serie', 'mes']).fillna(0)
+dfSul = pd.read_csv('Tabela2').set_index(['serie', 'mes']).fillna(0)
+dfNordeste = pd.read_csv('Tabela3').set_index(['serie', 'mes']).fillna(0)
+dfNorte = pd.read_csv('Tabela4').set_index(['serie', 'mes']).fillna(0)
 
 #função que determina o subsistema em questão:
 def setSubsistema(n):
@@ -46,11 +45,13 @@ def defineMes(mes):
         return 'NOV'
     if mes == 12:
         return 'DEZ'
+    if mes == 13:
+        return 'MEDIA'
 
 ##########------Filtro por faixa de serie------##########
-subsistema = 1 # 1 (SE), 2 (S), 3 (NE), 4 (N)
+subsistema = 1
 variavel = 'Hid' #[CMO, ENA, EAR, Hid, Ter, Peq, Carga, Inter]
-m = 'AGO'#['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ']
+m = 'AGO'
 valorMax = 20000
 valorMin = 150
 
@@ -58,7 +59,6 @@ valorMin = 150
 df = setSubsistema(subsistema)
 serie_a_filtrar = df.loc[(slice(None), m), variavel] #pd.Series com os valores das series a serem filtrados
 filtro = (serie_a_filtrar <= valorMax) & (serie_a_filtrar >= valorMin)
-
 resultFiltro = serie_a_filtrar[filtro].index.get_level_values('serie') #séries que atendem à condição
 
 #Montagem do dataframe final:
@@ -69,44 +69,47 @@ for s in resultFiltro:
     dfFiltrado = dfFiltrado.append(aux)
 
 #print(dfFiltrado, '\n')
-print("Numero de series: ", dfFiltrado.index.size/13)
+print("Numero de series: ", dfFiltrado.index.size/13, '\n')
 
-# #Exemplo do plot para o CMO
-# numSeries = 3
-# dfFiltrado.head(13*numSeries).plot(y= 'CMO', kind = 'bar')
-# plt.show(block=True)
+#Plot para o CMO
+dfmensal = dfFiltrado.reset_index(level = 'serie').groupby(level='mes', sort = False).mean().round(decimals = 2, out = None)
+#print(dfmensal, '\n')
+ax = dfmensal.plot.bar(y = 'CMO')
+for p in ax.patches:
+    ax.annotate(str(p.get_height()), (p.get_x(), p.get_height()))
+#plt.show(block=True)
+
+#Análise de balanço:
+#dfFilt = dfFiltrado
+#dfBalanco = pd.concat([dfFilt.pop('Hid'), dfFilt.pop('Ter'), dfFilt.pop('Peq'), dfFilt.pop('Inter')], axis = 1)
+#print(dfBalanco, '\n')
+#balancoMensal = dfBalanco.reset_index(level = 'serie').groupby(level='mes', sort = False).mean().round(decimals = 2, out = None)
+#print(dfmensal, '\n')
+#ax = dfmensal.plot.bar(stacked = True, fontsize = 8)
+#plt.show(block=True)
 
 #Caso se deseje exportar para excel:
 #dfFiltrado.to_excel(writer, sheet_name='Filtro por' + variavel, index = True)
 #writer.save()
 
-##########------Filtro por produto------##########
-## Filtro por produto considerando as séries que atendem ao filtro por faixa de série. Para analisar todas as séries, modificar o dataframe de 'dfFiltrado' para 'df'
-
-#Análise de balanço:
-dfBalanco = pd.concat([dfFiltrado.pop('Hid'), dfFiltrado.pop('Ter'), dfFiltrado.pop('Peq'), dfFiltrado.pop('Inter'), dfFiltrado.pop('CMO')], axis = 1)
-dfBalanco = dfBalanco.reset_index(level = 'mes')
-#print(dfBalanco)
-
+#Análise por produto
 #Produto mensal:
-mes = 'JUL'
-crit = dfBalanco.mes == mes
-mensal = dfBalanco[crit]
-#print(mensal)
+produtoMensal = dfFiltrado.reset_index(level = 'mes')
+crit = produtoMensal.mes == 'JAN'
+mensal = produtoMensal[crit]
+
+for i in range (2, 14):
+    crit = produtoMensal.mes == defineMes(i)
+    mensal = pd.concat([mensal, produtoMensal[crit]], axis=0)
+mensal = mensal.reset_index(level = 'serie').set_index(['mes'])
+mensal = mensal.groupby(['mes'], sort = False).mean()
+print(mensal)
 
 #Produto semestral:
-#primeiro semestre
-crit = (dfBalanco.mes == 'JAN') | (dfBalanco.mes == 'FEV') | (dfBalanco.mes == 'MAR') | (dfBalanco.mes == 'ABR') | (dfBalanco.mes == 'MAI') | (dfBalanco.mes == 'JUN')
-primeiroSemestre = dfBalanco[crit]
-#print(primeiroSemestre)
+#primeiro semestre:
+horasPrimSem = pd.Series([744, 673, 744, 720, 744, 720], index=['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN'])
+primSem = mensal.drop(['JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'])
 
 #segundo semestre
-#def mediaSegSem(df):
-#     if
-
-
-crit = (dfBalanco.mes == 'JUL') | (dfBalanco.mes == 'AGO') | (dfBalanco.mes == 'SET') | (dfBalanco.mes == 'OUT') | (dfBalanco.mes == 'NOV') | (dfBalanco.mes == 'DEZ')
-segundoSemestre = dfBalanco[crit]
-#print(segundoSemestre.head(12))
-segundoSemestre = segundoSemestre.groupby(['serie'], sort = False).mean()
-#print(segundoSemestre.head(12))
+horasSegSem = pd.Series([744, 744, 720, 744, 719, 744], index=['JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'])
+segSem = mensal.drop(['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN'])
