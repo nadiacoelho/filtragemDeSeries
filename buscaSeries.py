@@ -89,15 +89,16 @@ for i in range (0, len(aux)):
 #Para filtrar as séries considerando em outros subsistemas, são entrados na função de filtro um dataframe para comparação (definição do filtro) e outro para sua aplicação.
 #No caso do filtro no qual a comparação é feita no próprio subsistema em questão (normalmente, o SE), entra-se os dois valores iguais
 def filtro(dfComparacao, dfAplicacao, variavel, m, valorMax, valorMin, serieAnterior):
-    seriesFiltradas = dfComparacao.loc[(slice(None), m), variavel] #pd.Series com os valores das series a serem filtrados
-    filtro = (seriesFiltradas <= valorMax) & (seriesFiltradas >= valorMin)
+    seriesComparadas = dfComparacao.loc[(slice(None), m), variavel] #pd.Series com os valores das series a serem filtrados
+    seriesFiltradas = dfAplicacao.loc[(slice(None), m), variavel]
+    filtro = (seriesComparadas <= valorMax) & (seriesComparadas >= valorMin)
     resultFiltro = seriesFiltradas[filtro].index.get_level_values('serie') #séries que atendem à condição do filtro
     #Montagem do dataframe final:
     dfFilt = pd.DataFrame()
     #print("resultFiltro: ",resultFiltro, '\n')
     #print('dfApp: ', dfAplicacao)
-    print('Filtro:', resultFiltro)
-    print('Serie:', serieAnterior)
+    #print('Filtro:', resultFiltro)
+    #print('Serie:', serieAnterior)
     for s in resultFiltro:
         if s in serieAnterior:
             aux = dfAplicacao.loc[(s,slice(None)), : ]
@@ -108,49 +109,41 @@ def filtro(dfComparacao, dfAplicacao, variavel, m, valorMax, valorMin, serieAnte
 #Aplicação recursiva dos filtros:
 #Primeiro, filtro aos outros subsistemas
 subsistemas = []
+print("Fitrando pelos outros subsistemas", '\n')
 for i in range (1,5):
      if i != subsistema:
          subsistemas.append(i)
 for s in subsistemas:
-    print(s)
+    print('Subsistema: ', s)
     if s == 2: #SUL
         df = setSubsistema(s)
         (dfFiltroSubsistema, serieAnterior) = filtro(df,setSubsistema(subsistema), variavel, m, valorMaxS, valorMinS, df.loc[(slice(None), m), :])
         for ms in mesesPost:
-            print(ms)
             (dfFiltroSubsistema, serieAnterior) = filtro(df,setSubsistema(subsistema), variavel, ms, valorMaxMesesS, valorMinMesesS, serieAnterior)
         print("Numero de seriesS: ", dfFiltroSubsistema.index.size / 13, '\n')
     elif s == 3: #NORDESTE
         df = setSubsistema(s)
         (dfFiltroSubsistema, serieAnterior)= filtro(df,dfFiltroSubsistema, variavel, m, valorMaxNE, valorMinNE, serieAnterior)
         for ms in mesesPost:
-            print(ms)
             (dfFiltroSubsistema, serieAnterior) = filtro(df,dfFiltroSubsistema, variavel, ms, valorMaxMesesNE, valorMinMesesNE, serieAnterior)
         print("Numero de seriesNE: ", dfFiltroSubsistema.index.size / 13, '\n')
     elif s == 4: #NORTE
         df = setSubsistema(s)
         (dfFiltroSubsistema, serieAnterior) = filtro(df,dfFiltroSubsistema, variavel, m, valorMaxN, valorMinN, serieAnterior)
         for ms in mesesPost:
-            print(ms)
             (dfFiltroSubsistema, serieAnterior) = filtro(df,dfFiltroSubsistema, variavel, ms, valorMaxMesesN, valorMinMesesN, serieAnterior)
         print("Numero de seriesN: ", dfFiltroSubsistema.index.size / 13, '\n')
 
 #Filtro ao subsistema em questão
+print("Filtrando por meses do subsistema ", str(subsistema), '\n')
 df = setSubsistema(subsistema)
 (dfFiltroMes, serieAnterior) = filtro(dfFiltroSubsistema,dfFiltroSubsistema, variavel, m, valorMaxSE, valorMinSE, serieAnterior)
 for ms in mesesPost:
     print(ms)
     (dfFiltrado, serieAnterior) = filtro(dfFiltroMes,dfFiltroMes, variavel, ms, valorMaxMesesSE, valorMinMesesSE, serieAnterior)
-print("Numero de series2: ", dfFiltrado.index.size/13, '\n')
-
-#Análise de balanço:
-#dfFilt = dfFiltrado
-#dfBalanco = pd.concat([dfFilt.pop('Hid'), dfFilt.pop('Ter'), dfFilt.pop('Peq'), dfFilt.pop('Inter')], axis = 1)
-#print(dfBalanco, '\n')
-#balancoMensal = dfBalanco.reset_index(level = 'serie').groupby(level='mes', sort = False).mean().round(decimals = 2, out = None)
-#print(dfmensal, '\n')
-#ax = dfmensal.plot.bar(stacked = True, fontsize = 8)
-#plt.show(block=True)
+#print("df Filtrado: ", '\n')
+#print( dfFiltrado, '\n')
+print("Numero de series: ", dfFiltrado.index.size/13, '\n')
 
 #Análise por produto
 #Produto mensal:
@@ -160,66 +153,71 @@ mensal = produtoMensal[crit]
 for i in range (2, 14):
     crit = produtoMensal.mes == defineMes(i)
     mensal = pd.concat([mensal, produtoMensal[crit]], axis=0)
-mensal = mensal.reset_index(level = 'serie').set_index(['mes'])
+mensal = mensal.reset_index(level = 'serie', drop = True)
+mensal = mensal.set_index(['mes'])
 mensal = mensal.groupby(['mes'], sort = False).mean()
 
 def produtos(dataFrame, mesInicio, mesFim): #sempre entrar com dataFrame = mensal
-    produto = [0, 0, 0, 0, 0, 0, 0, 0]
-    if mesInicio < 1 or mesFim > 12:
-        print('Insira valores corretos para os meses')
-    else:
-        horas = [24*31, 24*28, 24*31, 24*30, 24*31, 24*30, 24*31, 24*31, 24*30, 24*31, 24*30, 24*31]
-        horasTotais = 0
-        somaCMO = 0
-        somaHid = 0
-        somaTer = 0
-        somaPeq = 0
-        somaCar = 0
-        for i in range (mesInicio-1, mesFim):
-            horasTotais = horasTotais + horas[i]
-            somaCMO = somaCMO + horas[i]*dataFrame.iloc[i, 0]
-            somaHid = somaHid + dataFrame.iloc[i, 3]
-            somaTer = somaTer + dataFrame.iloc[i, 4]
-            somaPeq = somaPeq + dataFrame.iloc[i, 5]
-            somaCar = somaCar + dataFrame.iloc[i, 6]
-        produto[0] = somaCMO/horasTotais
-        produto[2] = dataFrame.iloc[mesFim - 1, 2]
-        produto[3] = somaHid/(mesFim - mesInicio + 1)
-        produto[4] = somaTer/(mesFim - mesInicio + 1)
-        produto[5] = somaPeq/(mesFim - mesInicio + 1)
-        produto[6] = somaCar/(mesFim - mesInicio + 1)
-        return produto #[CMO_medio, 0, EAR(no fim do período do produto), Hid_med, Ter_mes, Peq_med, Carg_med, 0]
-final = mensal
+     produto = [0, 0, 0, 0, 0, 0, 0, 0]
+     if mesInicio < 1 or mesFim > 12:
+         print('Insira valores corretos para os meses')
+     else:
+         horas = [24*31, 24*28, 24*31, 24*30, 24*31, 24*30, 24*31, 24*31, 24*30, 24*31, 24*30, 24*31]
+         horasTotais = 0
+         somaCMO = 0
+         somaHid = 0
+         somaTer = 0
+         somaPeq = 0
+         somaCar = 0
+         for i in range (mesInicio-1, mesFim):
+             horasTotais = horasTotais + horas[i]
+             somaCMO = somaCMO + horas[i]*dataFrame.iloc[i, 0]
+             somaHid = somaHid + dataFrame.iloc[i, 3]
+             somaTer = somaTer + dataFrame.iloc[i, 4]
+             somaPeq = somaPeq + dataFrame.iloc[i, 5]
+             somaCar = somaCar + dataFrame.iloc[i, 6]
 
-#produto 1sem: produtos(mensal, 1, 6)
+         produto[0] = somaCMO/horasTotais
+         produto[2] = dataFrame.iloc[mesFim - 1, 2]
+         produto[3] = somaHid/(mesFim - mesInicio + 1)
+         produto[4] = somaTer/(mesFim - mesInicio + 1)
+         produto[5] = somaPeq/(mesFim - mesInicio + 1)
+         produto[6] = somaCar/(mesFim - mesInicio + 1)
+         return produto #[CMO_medio, 0, EAR(no fim do período do produto), Hid_med, Ter_mes, Peq_med, Carg_med, 0]
+
+final = mensal
+#produto 1sem: produtos(mensal, mes inicio do periodo = 1, mes fim do periodo = 6)
 df1Sem = pd.DataFrame(produtos(mensal, 1, 6), columns= ['Prod:1sem'], index=['CMO', 'ENA', 'EAR', 'Hid', 'Ter', 'Peq', 'Carga', 'Inter'])
 df1Sem = df1Sem.T
 final = final.append(df1Sem)
-#produto 2sem: produtos(mensal, 6, 12)
-df2Sem = pd.DataFrame(produtos(mensal, 6, 12), columns= ['Prod:2sem'], index=['CMO', 'ENA', 'EAR', 'Hid', 'Ter', 'Peq', 'Carga', 'Inter'])
+#produto 2sem: produtos(mensal, mes inicio do periodo = 7, mes fim do periodo = 12)
+df2Sem = pd.DataFrame(produtos(mensal, 7, 12), columns= ['Prod:2sem'], index=['CMO', 'ENA', 'EAR', 'Hid', 'Ter', 'Peq', 'Carga', 'Inter'])
 df2Sem = df2Sem.T
 final = final.append(df2Sem)
-#produto 1tri: produtos(mensal, 1, 3)
+#produto 1tri: produtos(mensal, mes inicio do periodo = 1, mes fim do periodo = 3)
 df1Tri = pd.DataFrame(produtos(mensal, 1, 3), columns= ['Prod:1tri'], index=['CMO', 'ENA', 'EAR', 'Hid', 'Ter', 'Peq', 'Carga', 'Inter'])
 df1Tri = df1Tri.T
 final = final.append(df1Tri)
-#produto 2tri: produtos(mensal, 4, 6)
+#produto 2tri: produtos(mensal, mes inicio do periodo = 4, mes fim do periodo = 6)
 df2Tri = pd.DataFrame(produtos(mensal, 4, 6), columns= ['Prod:2tri'],index=['CMO', 'ENA', 'EAR', 'Hid', 'Ter', 'Peq', 'Carga', 'Inter'])
 df2Tri = df2Tri.T
 final = final.append(df2Tri)
-#produto 3tri: produtos(mensal, 6, 8)
-df3Tri = pd.DataFrame(produtos(mensal, 6, 8), columns= ['Prod:3tri'], index=['CMO', 'ENA', 'EAR', 'Hid', 'Ter', 'Peq', 'Carga', 'Inter'])
+#produto 3tri: produtos(mensal, mes inicio do periodo = 7, mes fim do periodo = 8)
+df3Tri = pd.DataFrame(produtos(mensal, 7, 8), columns= ['Prod:3tri'], index=['CMO', 'ENA', 'EAR', 'Hid', 'Ter', 'Peq', 'Carga', 'Inter'])
 df3Tri = df3Tri.T
 final = final.append(df3Tri)
-#produto 4tri: produtos(mensal, 9, 12)
+#produto 4tri: produtos(mensal, mes inicio do periodo = 9, mes fim do periodo = 12)
 df4Tri = pd.DataFrame(produtos(mensal, 9, 12), columns= ['Prod:4tri'], index=['CMO', 'ENA', 'EAR', 'Hid', 'Ter', 'Peq', 'Carga', 'Inter'])
 df4Tri = df4Tri.T
 final = final.append(df4Tri)
 
 print(final)
+final.to_excel(writer1,sheet_name= 'Análise filtro', index = True)
+writer1.save()
 
-
-
-# #Exportar para excel:
-# final.to_excel(writer1, index = True)
-# writer1.save()
+#Análise de balanço:
+dfb = final
+dfBalanco = pd.concat([dfb.pop('Hid'), dfb.pop('Ter'), dfb.pop('Peq'), dfb.pop('Inter')], axis = 1)
+print(dfBalanco, '\n')
+dfBalanco.to_excel(writer1, sheet_name= 'Análise Balanco', index = True)
+writer1.save()
