@@ -20,10 +20,62 @@ dfCMO2 = pd.DataFrame(columns= ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL",
 dfCMO3 = pd.DataFrame(columns= ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ", "MEDIA"])
 dfCMO4 = pd.DataFrame(columns= ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ", "MEDIA"])
 
-def mediaPatamar(pesado, medio, leve):
-    percentualPesado = 0.10
-    percentualMedio = 0.52
-    percentualLeve = 0.38
+def mediaPatamar(pesado, medio, leve, mes):
+    if mes == 1:
+        percentualPesado = 0.1048
+        percentualMedio = 0.5229
+        percentualLeve = 0.3723
+    if mes == 2:
+        percentualPesado = 0.1025
+        percentualMedio = 0.5171
+        percentualLeve = 0.3804
+    if mes == 3:
+        percentualPesado = 0.1048
+        percentualMedio = 0.5229
+        percentualLeve = 0.3723
+    if mes == 4:
+        percentualPesado = 0.1000
+        percentualMedio = 0.5083
+        percentualLeve = 0.3917
+    if mes == 5:
+        percentualPesado = 0.1008
+        percentualMedio = 0.5108
+        percentualLeve = 0.3583
+    if mes == 6:
+        percentualPesado = 0.1083
+        percentualMedio = 0.5334
+        percentualLeve = 0.3583
+    if mes == 7:
+        percentualPesado = 0.1048
+        percentualMedio = 0.5229
+        percentualLeve = 0.3723
+    if mes == 8:
+        percentualPesado = 0.1089
+        percentualMedio = 0.5349
+        percentualLeve = 0.3562
+    if mes == 9:
+        percentualPesado = 0.1000
+        percentualMedio = 0.5083
+        percentualLeve = 0.3917
+    if mes == 10:
+        percentualPesado = 0.1048
+        percentualMedio = 0.5229
+        percentualLeve = 0.3723
+    if mes == 11:
+        percentualPesado = 0.1001
+        percentualMedio = 0.5091
+        percentualLeve = 0.3908
+    if mes == 12:
+        percentualPesado = 0.1008
+        percentualMedio = 0.5108
+        percentualLeve = 0.3884
+    if mes == 13:
+        percentualPesado = 0.1034
+        percentualMedio = 0.5187
+        percentualLeve = 0.3779
+    #percentualPesado = 0.1034
+    #percentualMedio = 0.5187
+    #percentualLeve = 0.3779
     media = (pesado*percentualPesado) + (medio*percentualMedio) + (leve*percentualLeve)
     return (media)
 def defineMes(mes):
@@ -58,7 +110,7 @@ for mes in range (1,14):
     precoMes = []
     i=2
     while i < len(tabela1_2018):
-        precoMed = mediaPatamar(float(tabela1_2018.iloc[i, mes]),float(tabela1_2018.iloc[i+1, mes]),float(tabela1_2018.iloc[i+2, mes]))
+        precoMed = mediaPatamar(float(tabela1_2018.iloc[i, mes]),float(tabela1_2018.iloc[i+1, mes]),float(tabela1_2018.iloc[i+2, mes]), mes)
         i+=3
         if precoMed < piso:
             precoMed = piso
@@ -72,7 +124,7 @@ for mes in range (1,14):
     precoMes = []
     i = 2
     while i < len(tabela2_2018):
-        precoMed = mediaPatamar(float(tabela2_2018.iloc[i, mes]), float(tabela2_2018.iloc[i + 1, mes]), float(tabela2_2018.iloc[i + 2, mes]))
+        precoMed = mediaPatamar(float(tabela2_2018.iloc[i, mes]), float(tabela2_2018.iloc[i + 1, mes]), float(tabela2_2018.iloc[i + 2, mes]), mes)
         i += 3
         if precoMed < piso:
             precoMed = piso
@@ -86,7 +138,7 @@ for mes in range (1,14):
     precoMes = []
     i=2
     while i < len(tabela3_2018):
-        precoMed = mediaPatamar(float(tabela3_2018.iloc[i, mes]),float(tabela3_2018.iloc[i+1, mes]),float(tabela3_2018.iloc[i+2, mes]))
+        precoMed = mediaPatamar(float(tabela3_2018.iloc[i, mes]),float(tabela3_2018.iloc[i+1, mes]),float(tabela3_2018.iloc[i+2, mes]), mes)
         i+=3
         if precoMed < piso:
             precoMed = piso
@@ -100,7 +152,7 @@ for mes in range (1,14):
     precoMes = []
     i=2
     while i < len(tabela4_2018):
-        precoMed = mediaPatamar(float(tabela4_2018.iloc[i, mes]),float(tabela4_2018.iloc[i+1, mes]),float(tabela4_2018.iloc[i+2, mes]))
+        precoMed = mediaPatamar(float(tabela4_2018.iloc[i, mes]),float(tabela4_2018.iloc[i+1, mes]),float(tabela4_2018.iloc[i+2, mes]), mes)
         i+=3
         if precoMed < piso:
             precoMed = piso
@@ -109,3 +161,10 @@ for mes in range (1,14):
         precoMes.append(precoMed)
     label = defineMes(mes)
     dfCMO4[label] = precoMes
+
+
+print(dfCMO1)
+
+writer1 = pd.ExcelWriter("Debug.xlsx", engine= 'openpyxl')
+dfCMO1.to_excel(writer1)
+writer1.save()

@@ -1,7 +1,6 @@
 import pandas as pd
-import matplotlib.pyplot as plt
 writer1 = pd.ExcelWriter('AnaliseNewave.xlsx', engine= 'openpyxl')
-writer2 = pd.ExcelWriter('Debug.xlsx', engine= 'openpyxl')
+writer2 = pd.ExcelWriter('DebugFiltro.xlsx', engine= 'openpyxl')
 pd.set_option('display.width', 500)
 
 #Os dataframes que serão usados no código inteiro. Se definidos como variável global do projeto, essas linhas podem ser suprimidas.
@@ -107,7 +106,7 @@ def filtro(dfComparacao, dfAplicacao, variavel, m, valorMax, valorMin, serieAnte
     return(dfFilt, resultFiltro)
 
 #Aplicação recursiva dos filtros:
-#Primeiro, filtro aos outros subsistemas
+#Filtro aos outros subsistemas
 subsistemas = []
 print("Fitrando pelos outros subsistemas", '\n')
 for i in range (1,5):
@@ -141,6 +140,8 @@ df = setSubsistema(subsistema)
 for ms in mesesPost:
     print(ms)
     (dfFiltrado, serieAnterior) = filtro(dfFiltroMes,dfFiltroMes, variavel, ms, valorMaxMesesSE, valorMinMesesSE, serieAnterior)
+pd.Series(serieAnterior).to_excel(writer2)
+writer2.save()
 #print("df Filtrado: ", '\n')
 #print( dfFiltrado, '\n')
 print("Numero de series: ", dfFiltrado.index.size/13, '\n')
@@ -212,12 +213,14 @@ df4Tri = df4Tri.T
 final = final.append(df4Tri)
 
 print(final)
-final.to_excel(writer1,sheet_name= 'Análise filtro', index = True)
+final.to_excel(writer1,sheet_name= 'Molhado', index = True)
 writer1.save()
+writer1.close()
 
 #Análise de balanço:
 dfb = final
 dfBalanco = pd.concat([dfb.pop('Hid'), dfb.pop('Ter'), dfb.pop('Peq'), dfb.pop('Inter')], axis = 1)
 print(dfBalanco, '\n')
-dfBalanco.to_excel(writer1, sheet_name= 'Análise Balanco', index = True)
+dfBalanco.to_excel(writer1, sheet_name= 'Balanço Molhado', index = True)
 writer1.save()
+writer1.close()
