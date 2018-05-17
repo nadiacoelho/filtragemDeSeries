@@ -48,6 +48,20 @@ def defineMes(mes):
     if mes == 13:
         return 'MEDIA'
 
+#df=setSubsistema(1)
+#print("SE:")
+#print(df.loc[48, (slice(None)), :])
+#df=setSubsistema(2)
+#print("S:")
+#print(df.loc[48, (slice(None)), :])
+#df=setSubsistema(3)
+#print("NE:")
+#print(df.loc[48, (slice(None)), :])
+#df=setSubsistema(4)
+#print("N:")
+#print(df.loc[48, (slice(None)), :])
+
+
 ##########------Filtro por faixa de serie------##########
 subsistema = 1
 variavel = 'ENA' #[CMO, ENA, EAR, Hid, Ter, Peq, Carga, Inter]
@@ -57,17 +71,17 @@ valorMinSE = 100
 valorMaxMesesSE = 120
 valorMinMesesSE =0
 
-valorMaxS = 2000
+valorMaxS = 1000
 valorMinS = 0
-valorMaxMesesS = 2000
+valorMaxMesesS = 1000
 valorMinMesesS = 0
 
-valorMaxNE = 120
+valorMaxNE = 150
 valorMinNE = 0
-valorMaxMesesNE = 110
+valorMaxMesesNE = 1000
 valorMinMesesNE =0
 
-valorMaxN = 2000
+valorMaxN = 150
 valorMinN = 0
 valorMaxMesesN = 1000
 valorMinMesesN =0
@@ -91,24 +105,24 @@ def filtro(dfComparacao, dfAplicacao, variavel, m, valorMax, valorMin, serieAnte
     seriesComparadas = dfComparacao.loc[(slice(None), m), variavel] #pd.Series com os valores das series a serem filtrados
     seriesFiltradas = dfAplicacao.loc[(slice(None), m), variavel]
     filtro = (seriesComparadas <= valorMax) & (seriesComparadas >= valorMin)
-    resultFiltro = seriesFiltradas[filtro].index.get_level_values('serie') #séries que atendem à condição do filtro
-    #Montagem do dataframe final:
+    resultFiltro = seriesFiltradas[filtro].index.get_level_values('serie') #LISTA com séries que atendem à condição do filtro
+    #Montagem do dataframe:
     dfFilt = pd.DataFrame()
-    #print("resultFiltro: ",resultFiltro, '\n')
-    #print('dfApp: ', dfAplicacao)
-    #print('Filtro:', resultFiltro)
-    #print('Serie:', serieAnterior)
+    auxSerie = []
     for s in resultFiltro:
         if s in serieAnterior:
-            aux = dfAplicacao.loc[(s,slice(None)), : ]
+            aux = dfAplicacao.loc[(s, slice(None)), : ]
             aux = pd.concat([aux])
             dfFilt = dfFilt.append(aux)
-    return(dfFilt, resultFiltro)
+            auxSerie.append(s)
+    propagadorSerie = pd.Series(auxSerie)
+    #print("serie propagada: ", propagadorSerie, '\n')
+    return(dfFilt, propagadorSerie)
 
 #Aplicação recursiva dos filtros:
 #Filtro aos outros subsistemas
 subsistemas = []
-print("Fitrando pelos outros subsistemas", '\n')
+print("Filtrando pelos outros subsistemas", '\n')
 for i in range (1,5):
      if i != subsistema:
          subsistemas.append(i)
@@ -116,39 +130,42 @@ for s in subsistemas:
     print('Subsistema: ', s)
     if s == 2: #SUL
         df = setSubsistema(s)
-        (dfFiltroSubsistema, serieAnterior) = filtro(df,setSubsistema(subsistema), variavel, m, valorMaxS, valorMinS, df.loc[(slice(None), m), :])
+        (dfFiltroSubsistema, serieAnterior) = filtro(df, setSubsistema(subsistema), variavel, m, valorMaxS, valorMinS, df.index.get_level_values('serie').drop_duplicates())
+        print("Entra nos meses")
         for ms in mesesPost:
             (dfFiltroSubsistema, serieAnterior) = filtro(df,setSubsistema(subsistema), variavel, ms, valorMaxMesesS, valorMinMesesS, serieAnterior)
         print("Numero de seriesS: ", dfFiltroSubsistema.index.size / 13, '\n')
     elif s == 3: #NORDESTE
         df = setSubsistema(s)
-        (dfFiltroSubsistema, serieAnterior)= filtro(df,dfFiltroSubsistema, variavel, m, valorMaxNE, valorMinNE, serieAnterior)
+        (dfFiltroSubsistema, serieAnterior)= filtro(df, setSubsistema(subsistema), variavel, m, valorMaxNE, valorMinNE, serieAnterior)
         for ms in mesesPost:
             (dfFiltroSubsistema, serieAnterior) = filtro(df,dfFiltroSubsistema, variavel, ms, valorMaxMesesNE, valorMinMesesNE, serieAnterior)
         print("Numero de seriesNE: ", dfFiltroSubsistema.index.size / 13, '\n')
     elif s == 4: #NORTE
         df = setSubsistema(s)
-        (dfFiltroSubsistema, serieAnterior) = filtro(df,dfFiltroSubsistema, variavel, m, valorMaxN, valorMinN, serieAnterior)
+        (dfFiltroSubsistema, serieAnterior) = filtro(df, setSubsistema(subsistema), variavel, m, valorMaxN, valorMinN, serieAnterior)
         for ms in mesesPost:
-            (dfFiltroSubsistema, serieAnterior) = filtro(df,dfFiltroSubsistema, variavel, ms, valorMaxMesesN, valorMinMesesN, serieAnterior)
+            (dfFiltroSubsistema, serieAnterior) = filtro(df, setSubsistema(subsistema), variavel, ms, valorMaxMesesN, valorMinMesesN, serieAnterior)
         print("Numero de seriesN: ", dfFiltroSubsistema.index.size / 13, '\n')
 
 #Filtro ao subsistema em questão
 print("Filtrando por meses do subsistema ", str(subsistema), '\n')
 df = setSubsistema(subsistema)
-(dfFiltroMes, serieAnterior) = filtro(dfFiltroSubsistema,dfFiltroSubsistema, variavel, m, valorMaxSE, valorMinSE, serieAnterior)
-for ms in mesesPost:
-    print(ms)
-    (dfFiltrado, serieAnterior) = filtro(dfFiltroMes,dfFiltroMes, variavel, ms, valorMaxMesesSE, valorMinMesesSE, serieAnterior)
-pd.Series(serieAnterior).to_excel(writer2)
-writer2.save()
+(dfFiltroMes, seriePropagada) = filtro(dfFiltroSubsistema, dfFiltroSubsistema, variavel, m, valorMaxSE, valorMinSE, serieAnterior)
+print("filtromes: ", dfFiltroMes)
+print("Numero de series: ", dfFiltroMes.index.size / 13, '\n')
+# for ms in mesesPost:
+#     print(ms)
+#     (dfFiltroMes, seriePropagada) = filtro(dfFiltroMes, dfFiltroMes, variavel, ms, valorMaxMesesSE, valorMinMesesSE, seriePropagada)
+print("Numero de series: ", dfFiltroMes.index.size/13, '\n')
+#pd.Series(serieAnterior).to_excel(writer2) #debug
+#writer2.save() #debug
 #print("df Filtrado: ", '\n')
 #print( dfFiltrado, '\n')
-print("Numero de series: ", dfFiltrado.index.size/13, '\n')
 
 #Análise por produto
 #Produto mensal:
-produtoMensal = dfFiltrado.reset_index(level = 'mes')
+produtoMensal = dfFiltroMes.reset_index(level = 'mes')
 crit = produtoMensal.mes == 'JAN'
 mensal = produtoMensal[crit]
 for i in range (2, 14):

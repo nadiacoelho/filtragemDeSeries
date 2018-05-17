@@ -106,3 +106,6 @@ while mes > 0:
     dfSistema.loc[defineMes(mes), ('3', 'pequenas')] = 0
     dfSistema.loc[defineMes(mes), ('4', 'pequenas')] = 0
     mes-=1
+
+dfSistema = dfSistema.fillna(0)
+print(dfSistema)

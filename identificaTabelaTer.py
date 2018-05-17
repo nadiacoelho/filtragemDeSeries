@@ -84,3 +84,5 @@ for mes in range (1,14):
         listaAux.append(valor)
     label = defineMes(mes)
     dfTer4[label] = listaAux
+
+#print(dfTer1)

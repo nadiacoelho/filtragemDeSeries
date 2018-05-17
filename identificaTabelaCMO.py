@@ -163,7 +163,7 @@ for mes in range (1,14):
     dfCMO4[label] = precoMes
 
 
-print(dfCMO1)
+#print(dfCMO1)
 
 writer1 = pd.ExcelWriter("Debug.xlsx", engine= 'openpyxl')
 dfCMO1.to_excel(writer1)
